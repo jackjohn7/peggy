@@ -15,7 +15,6 @@ repository = { type = "github", user = "jackjohn7", repo = "peggy" }
 [dependencies]
 gleam_stdlib = ">= 0.37.0 and < 1.0.0"
 gleam_erlang = ">= 0.25.0 and < 1.0.0"
-erlexec = ">= 2.0.6 and < 3.0.0"
 simplifile = ">= 1.7.0 and < 2.0.0"
 shellout = ">= 1.6.0 and < 2.0.0"
 
