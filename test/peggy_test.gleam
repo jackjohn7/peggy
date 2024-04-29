@@ -1,6 +1,7 @@
 import gleam/io
 import gleeunit
 import gleeunit/should
+import glexec
 import peggy
 import simplifile
 
@@ -12,6 +13,10 @@ pub fn main() {
 pub fn hello_world_test() {
   1
   |> should.equal(1)
+}
+
+pub fn verify_ffmpeg_install_test() {
+  let assert Ok(_) = glexec.find_executable("ffmpeg")
 }
 
 pub fn run_sync_test() {
