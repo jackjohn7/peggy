@@ -11,6 +11,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - name: Set SHELL environment variable
+        run: echo "SHELL=$SHELL" >> $GITHUB_ENV
       - uses: FedericoCarboni/setup-ffmpeg@v3
         id: setup-ffmpeg
         with:

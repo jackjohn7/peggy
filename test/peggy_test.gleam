@@ -73,13 +73,6 @@ pub fn run_sync_test() {
     |> peggy.add_file("temp2.mp4")
     |> peggy.exec_sync
 
-  case simplifile.verify_is_file("temp2.mp4") {
-    Ok(r) ->
-      r
-      |> should.equal(True)
-    Error(_) -> {
-      io.println("Failed to verify existence of file temp2.mp4, failing")
-      should.fail()
-    }
-  }
+  let assert Ok(Nil) = simplifile.delete("temp1.mp4")
+  let assert Ok(Nil) = simplifile.delete("temp2.mp4")
 }
