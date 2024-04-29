@@ -1,8 +1,8 @@
 import gleam/io
 import gleeunit
 import gleeunit/should
-import glexec
 import peggy
+import shellout
 import simplifile
 
 pub fn main() {
@@ -16,7 +16,12 @@ pub fn hello_world_test() {
 }
 
 pub fn verify_ffmpeg_install_test() {
-  let assert Ok(_) = glexec.find_executable("ffmpeg")
+  let assert Ok(path) = shellout.which("ffmpeg")
+
+  let _ =
+    shellout.command(run: path, with: ["-version"], in: ".", opt: [
+      shellout.LetBeStdout,
+    ])
 }
 
 pub fn run_sync_test() {
@@ -72,7 +77,30 @@ pub fn run_sync_test() {
     |> peggy.add_arg("-c:v", "libx264")
     |> peggy.add_file("temp2.mp4")
     |> peggy.exec_sync
-
   let assert Ok(Nil) = simplifile.delete("temp1.mp4")
   let assert Ok(Nil) = simplifile.delete("temp2.mp4")
+}
+
+pub fn add_arg_test() {
+  peggy.new_command()
+  |> peggy.add_arg("-i", "temp1.mp4")
+  |> peggy.add_arg("-vf", "scale=854:480")
+  |> should.equal(
+    peggy.Command(files: [], options: [
+      peggy.CmdOption(name: "-vf", value: "scale=854:480"),
+      peggy.CmdOption(name: "-i", value: "temp1.mp4"),
+    ]),
+  )
+}
+
+pub fn add_file_test() {
+  peggy.new_command()
+  |> peggy.add_file("temp1.mp4")
+  |> peggy.add_file("temp2.mp4")
+  |> should.equal(
+    peggy.Command(options: [], files: [
+      peggy.File("temp2.mp4"),
+      peggy.File("temp1.mp4"),
+    ]),
+  )
 }

@@ -1,7 +1,7 @@
 //// A module for utilizing FFMPEG in Gleam
 
 import gleam/list
-import glexec.{Stderr, Stdout}
+import shellout
 
 /// Err that occurred during construction/execution of FFmpeg Command
 pub type PeggyErr {
@@ -9,17 +9,17 @@ pub type PeggyErr {
 }
 
 /// A file input provided to FFmpeg
-pub opaque type File {
+pub type File {
   File(String)
 }
 
 /// A CLI argument provided to FFmpeg
-pub opaque type CmdOption {
+pub type CmdOption {
   CmdOption(name: String, value: String)
 }
 
 /// Command provided to FFmpeg
-pub opaque type Command {
+pub type Command {
   Command(files: List(File), options: List(CmdOption))
 }
 
@@ -45,16 +45,17 @@ pub fn add_arg(cmd: Command, name: String, value: String) -> Command {
 
 /// Executes the command provided to ffmpeg
 pub fn exec_sync(cmd: Command) -> Result(List(String), List(String)) {
-  let assert Ok(ffmpeg) = glexec.find_executable("ffmpeg")
+  let assert Ok(ffmpeg) = shellout.which("ffmpeg")
 
   let args =
     cmd.options
     |> list.reverse
     |> list.map(fn(x) {
       case x {
-        CmdOption(name, val) -> name <> val
+        CmdOption(name, val) -> [name, val]
       }
     })
+    |> list.flatten
 
   let files =
     cmd.files
@@ -66,8 +67,12 @@ pub fn exec_sync(cmd: Command) -> Result(List(String), List(String)) {
     })
 
   case
-    glexec.new()
-    |> glexec.run_sync(glexec.Execve(list.concat([[ffmpeg], files, args])))
+    shellout.command(
+      run: ffmpeg,
+      with: list.concat([args, files]),
+      in: ".",
+      opt: [],
+    )
   {
     // TODO: Improve this travesty
     Ok(_) -> Ok([])
