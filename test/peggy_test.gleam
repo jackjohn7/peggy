@@ -24,6 +24,16 @@ pub fn verify_ffmpeg_install_test() {
     ])
 }
 
+pub fn run_error_test() {
+  peggy.new_command()
+  |> peggy.add_arg("-i", "temp1.mp4")
+  |> peggy.add_arg("-vf", "scale=xhdbaw")
+  |> peggy.add_arg("-c:v", "libx264")
+  |> peggy.add_file("temp2.mp4")
+  |> peggy.exec_sync
+  |> should.equal(Error("temp1.mp4: No such file or directory\n"))
+}
+
 pub fn run_sync_test() {
   // verify that file temp1.mp4 doesn't already exist
   case simplifile.verify_is_file("temp1.mp4") {

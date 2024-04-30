@@ -3,11 +3,6 @@
 import gleam/list
 import shellout
 
-/// Err that occurred during construction/execution of FFmpeg Command
-pub type PeggyErr {
-  FFmpegNotFound(String)
-}
-
 /// A file input provided to FFmpeg
 pub type File {
   File(String)
@@ -44,7 +39,7 @@ pub fn add_arg(cmd: Command, name: String, value: String) -> Command {
 }
 
 /// Executes the command provided to ffmpeg
-pub fn exec_sync(cmd: Command) -> Result(List(String), List(String)) {
+pub fn exec_sync(cmd: Command) -> Result(String, String) {
   let assert Ok(ffmpeg) = shellout.which("ffmpeg")
 
   let args =
@@ -56,6 +51,7 @@ pub fn exec_sync(cmd: Command) -> Result(List(String), List(String)) {
       }
     })
     |> list.flatten
+    |> list.append(["-loglevel", "error", "-hide_banner"])
 
   let files =
     cmd.files
@@ -74,8 +70,7 @@ pub fn exec_sync(cmd: Command) -> Result(List(String), List(String)) {
       opt: [],
     )
   {
-    // TODO: Improve this travesty
-    Ok(_) -> Ok([])
-    Error(_) -> Error([])
+    Ok(s) -> Ok(s)
+    Error(#(_, es)) -> Error(es)
   }
 }
