@@ -11,6 +11,7 @@ pub type File {
 /// A CLI argument provided to FFmpeg
 pub type CmdOption {
   CmdOption(name: String, value: String)
+  Flag(flag: String)
 }
 
 /// Command provided to FFmpeg
@@ -38,6 +39,13 @@ pub fn add_arg(cmd: Command, name: String, value: String) -> Command {
   }
 }
 
+// Adds flag to command
+pub fn add_flag(cmd: Command, flag: String) -> Command {
+  case cmd {
+    Command(files, options) -> Command(files, [Flag(flag), ..options])
+  }
+}
+
 /// Executes the command provided to ffmpeg
 pub fn exec_sync(cmd: Command) -> Result(String, String) {
   let assert Ok(ffmpeg) = shellout.which("ffmpeg")
@@ -48,6 +56,7 @@ pub fn exec_sync(cmd: Command) -> Result(String, String) {
     |> list.map(fn(x) {
       case x {
         CmdOption(name, val) -> [name, val]
+        Flag(flag) -> [flag]
       }
     })
     |> list.flatten
