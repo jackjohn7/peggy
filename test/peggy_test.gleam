@@ -28,10 +28,10 @@ pub fn verify_ffmpeg_install_test() {
 pub fn run_error_test() {
   case
     peggy.new_command()
-    |> peggy.add_arg("-i", "temp1.mp4")
+    |> peggy.input("temp1.mp4")
     |> peggy.add_arg("-vf", "scale=xhdbaw")
-    |> peggy.add_arg("-c:v", "libx264")
-    |> peggy.add_file("temp2.mp4")
+    |> peggy.video_codec("libx264")
+    |> peggy.output("temp2.mp4")
     |> peggy.exec_sync
   {
     Ok(_) -> True
@@ -69,11 +69,11 @@ pub fn run_sync_test() {
   // create video file
   let _ =
     peggy.new_command()
-    |> peggy.add_arg("-f", "lavfi")
-    |> peggy.add_arg("-i", "color=c=black:s=1920x1080:d=5")
-    |> peggy.add_arg("-c:v", "libx264")
-    |> peggy.add_arg("-t", "5")
-    |> peggy.add_file("temp1.mp4")
+    |> peggy.fmt("lavfi")
+    |> peggy.input("color=c=black:s=1920x1080:d=5")
+    |> peggy.video_codec("libx264")
+    |> peggy.duration("5")
+    |> peggy.output("temp1.mp4")
     |> peggy.exec_sync
 
   case simplifile.verify_is_file("temp1.mp4") {
@@ -88,10 +88,10 @@ pub fn run_sync_test() {
 
   let _ =
     peggy.new_command()
-    |> peggy.add_arg("-i", "temp1.mp4")
-    |> peggy.add_arg("-vf", "scale=854:480")
-    |> peggy.add_arg("-c:v", "libx264")
-    |> peggy.add_file("temp2.mp4")
+    |> peggy.input("temp1.mp4")
+    |> peggy.video_filter("scale=854:480")
+    |> peggy.video_codec("libx264")
+    |> peggy.output("temp2.mp4")
     |> peggy.exec_sync
   let assert Ok(Nil) = simplifile.delete("temp1.mp4")
   let assert Ok(Nil) = simplifile.delete("temp2.mp4")
@@ -99,8 +99,8 @@ pub fn run_sync_test() {
 
 pub fn add_arg_test() {
   peggy.new_command()
-  |> peggy.add_arg("-i", "temp1.mp4")
-  |> peggy.add_arg("-vf", "scale=854:480")
+  |> peggy.input("temp1.mp4")
+  |> peggy.video_filter("scale=854:480")
   |> should.equal(
     peggy.Command(files: [], options: [
       peggy.CmdOption(name: "-vf", value: "scale=854:480"),
@@ -109,10 +109,10 @@ pub fn add_arg_test() {
   )
 }
 
-pub fn add_file_test() {
+pub fn output_test() {
   peggy.new_command()
-  |> peggy.add_file("temp1.mp4")
-  |> peggy.add_file("temp2.mp4")
+  |> peggy.output("temp1.mp4")
+  |> peggy.output("temp2.mp4")
   |> should.equal(
     peggy.Command(options: [], files: [
       peggy.File("temp2.mp4"),
