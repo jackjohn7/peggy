@@ -1,8 +1,8 @@
-import ffprobe
 import gleam/io
 import gleam/string
 import gleeunit/should
 import peggy
+import peggy/ffprobe
 import simplifile
 
 pub fn info_test() {
