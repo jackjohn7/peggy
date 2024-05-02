@@ -5,11 +5,17 @@
 
 // TODO: separate into the following modules:
 //       audio, video, base, misc
+import ffprobe
 import gleam/float
-
 import gleam/int
+import gleam/io
 import gleam/list
 import shellout
+
+pub fn main() {
+  ffprobe.get_video_info("temp1.mp4")
+  |> io.debug
+}
 
 /// A file input provided to FFmpeg
 pub type File {
