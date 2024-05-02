@@ -42,18 +42,29 @@ pub fn get_video_info(file_path: String) -> Result(StreamProperties, String) {
         string.split(s, "\n")
         |> list.fold(dict.new(), fold_kv)
 
-      Ok(StreamProperties(
-        dict.get(kv, "width")
-          |> result.unwrap("Failed"),
-        dict.get(kv, "height")
-          |> result.unwrap("Failed"),
-        dict.get(kv, "sample_aspect_ratio")
-          |> result.unwrap("Failed"),
-        dict.get(kv, "display_aspect_ratio")
-          |> result.unwrap("Failed"),
-        dict.get(kv, "r_frame_rate")
-          |> result.unwrap("Failed"),
-      ))
+      case
+        [
+          "width", "height", "sample_aspect_ratio", "display_aspect_ratio",
+          "r_frame_rate",
+        ]
+        |> list.fold(True, fn(acc, v) { acc && dict.has_key(kv, v) })
+      {
+        True -> {
+          Ok(StreamProperties(
+            dict.get(kv, "width")
+              |> result.unwrap(""),
+            dict.get(kv, "height")
+              |> result.unwrap(""),
+            dict.get(kv, "sample_aspect_ratio")
+              |> result.unwrap(""),
+            dict.get(kv, "display_aspect_ratio")
+              |> result.unwrap(""),
+            dict.get(kv, "r_frame_rate")
+              |> result.unwrap(""),
+          ))
+        }
+        False -> Error("Failed to parse: " <> s)
+      }
     }
     Error(#(_, es)) -> Error(es)
   }

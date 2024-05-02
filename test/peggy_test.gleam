@@ -10,12 +10,6 @@ pub fn main() {
   gleeunit.main()
 }
 
-// gleeunit test functions end in `_test`
-pub fn hello_world_test() {
-  1
-  |> should.equal(1)
-}
-
 pub fn verify_ffmpeg_install_test() {
   let assert Ok(path) = shellout.which("ffmpeg")
 
@@ -29,7 +23,6 @@ pub fn run_error_test() {
   case
     peggy.new_command()
     |> peggy.input("temp1.mp4")
-    |> peggy.add_arg("-vf", "scale=xhdbaw")
     |> peggy.video_codec("libx264")
     |> peggy.output("temp2.mp4")
     |> peggy.exec_sync
