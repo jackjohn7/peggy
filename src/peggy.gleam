@@ -286,6 +286,7 @@ pub fn disable_audio(cmd: Command) -> Command {
 ///
 /// CMD: -aspect <ratio>
 pub fn aspect_ratio(cmd: Command, ratio: String) -> Command {
+  // NOTE: Not sure how to test this (ffprobe?)
   add_arg(cmd, "-aspect", ratio)
 }
 
@@ -293,6 +294,7 @@ pub fn aspect_ratio(cmd: Command, ratio: String) -> Command {
 ///
 /// CMD: -s <ratio>
 pub fn frame_size(cmd: Command, size: String) -> Command {
+  // NOTE: Not sure how to test this (ffprobe?)
   add_arg(cmd, "-s", size)
 }
 
@@ -412,11 +414,13 @@ pub fn target(cmd, tgt) {
 
 /// Set discard
 pub fn discard(cmd) {
+  // NOTE: Not sure how to test this yet
   add_flag(cmd, "-discord")
 }
 
 /// Set discard
 pub fn disposition(cmd) {
+  // NOTE: Not sure how to test this yet
   add_flag(cmd, "-disposition")
 }
 
@@ -429,10 +433,18 @@ pub fn disposition(cmd) {
 // 106   │ -fix_sub_duration   fix subtitles duration
 // 107   │ -canvas_size size   set canvas size (WxH or abbreviation)
 // 108   │ -spre preset        set the subtitle options to the indicated preset
+/// Disable subtitles
+///
+/// -cn
 pub fn disable_subtitle(cmd) {
   add_flag(cmd, "-sn")
 }
 
+/// Set subtitle codec
+///
+/// 'copy' to copy stream
+///
+/// CMD: -c:s <codec>
 pub fn subtitle_codec(cmd, codec) {
   add_arg(cmd, "-c:s", codec)
 }
