@@ -14,11 +14,11 @@ import peggy
 pub fn main() {
   // creates a 5 second video of black screen
   peggy.new_command()
-  |> peggy.add_arg("-f", "lavfi")
-  |> peggy.add_arg("-i", "color=c=black:s=1920x1080:d=5")
-  |> peggy.add_arg("-c:v", "libx264")
-  |> peggy.add_arg("-t", "5")
-  |> peggy.add_file("output.mp4")
+  |> peggy.fmt("lavfi")
+  |> peggy.input("color=c=black:s=1920x1080:d=5")
+  |> peggy.video_codec("libx264")
+  |> peggy.duration("5")
+  |> peggy.output("output.mp4")
   |> peggy.exec_sync
 }
 ```
