@@ -1,3 +1,8 @@
+//// This module contains functions for interacting with FFprobe.
+//// FFprobe is used to get information about video files such as
+//// resolution, frame-rate, duration, etc. This module contains
+//// some helper utilities simplifying that process.
+
 import gleam/dict
 import gleam/float
 import gleam/list
@@ -5,6 +10,8 @@ import gleam/result
 import gleam/string
 import shellout
 
+/// Contains information about a video file
+/// This may be expanded to contain more data in updates
 pub type StreamProperties {
   StreamProperties(
     width: String,
@@ -15,6 +22,29 @@ pub type StreamProperties {
   )
 }
 
+/// Get information about a video file
+/// This information includes:
+/// - width
+/// - height
+/// - sample aspect ratio (aspect ratio of pixels)
+/// - aspect ratio (of video)
+/// - frame rate (as fraction)
+///
+/// # Usage
+///
+/// ```gleam
+/// case ffprobe.get_video_info("input.mp4") {
+///   Ok(StreamProperties(w, h, sar, ar, fr)) -> {...}
+///   Error(msg) -> {...}
+/// }
+/// ```
+/// 
+/// ## OR
+///
+/// ```gleam
+/// let assert Ok(StreamProperties(w, h, sar, ar, fr)) =
+///   ffprobe.get_video_info("input.mp4")
+/// ```
 pub fn get_video_info(file_path: String) -> Result(StreamProperties, String) {
   let assert Ok(ffprobe) = shellout.which("ffprobe")
   case
@@ -78,10 +108,13 @@ fn fold_kv(acc, s) {
   }
 }
 
-// ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 input.mp4
-// ffprobe -i <file> -show_entries format=duration -v quiet -of csv="p=0"
-// ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 input_video.mp4
-
+/// Get duration of video file as float
+///
+/// # Usage
+///
+/// ```gleam
+/// let assert Ok(duration) = ffprobe.get_duration("input.mp4")
+/// ```
 pub fn get_duration(file_path: String) -> Result(Float, String) {
   let assert Ok(ffprobe) = shellout.which("ffprobe")
   case
