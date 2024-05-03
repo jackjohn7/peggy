@@ -150,3 +150,35 @@ pub fn overwrite_test() {
   )
   let assert Ok(Nil) = simplifile.delete("temp1.mp4")
 }
+
+pub fn no_overwrite_test() {
+  let _ =
+    peggy.new_command()
+    |> peggy.fmt("lavfi")
+    |> peggy.input("color=c=black:s=1920x1080:d=5")
+    |> peggy.video_codec("libx264")
+    |> peggy.duration("5")
+    |> peggy.output("temp1.mp4")
+    |> peggy.exec_sync
+    |> should.equal(Ok(""))
+
+  // check that the resolution is 1920x1080
+  ffprobe.get_video_info("temp1.mp4")
+  |> should.equal(
+    Ok(ffprobe.StreamProperties("1920", "1080", "1:1", "16:9", "25/1")),
+  )
+  // now create a video set to overwrite the first one
+  let _ =
+    peggy.new_command()
+    |> peggy.fmt("lavfi")
+    |> peggy.input("color=c=black:s=840x480:d=5")
+    |> peggy.video_codec("libx264")
+    |> peggy.duration("5")
+    |> peggy.output("temp1.mp4")
+    |> peggy.exec_sync
+  ffprobe.get_video_info("temp1.mp4")
+  |> should.equal(
+    Ok(ffprobe.StreamProperties("1920", "1080", "1:1", "16:9", "25/1")),
+  )
+  let assert Ok(Nil) = simplifile.delete("temp1.mp4")
+}
