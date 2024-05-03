@@ -117,7 +117,7 @@ pub fn output_test() {
 }
 
 pub fn overwrite_test() {
-  let video1 =
+  let _ =
     peggy.new_command()
     |> peggy.fmt("lavfi")
     |> peggy.input("color=c=black:s=1920x1080:d=5")
@@ -125,9 +125,7 @@ pub fn overwrite_test() {
     |> peggy.duration("5")
     |> peggy.output("temp1.mp4")
     |> peggy.exec_sync
-
-  video1
-  |> should.equal(Ok(""))
+    |> should.equal(Ok(""))
 
   // check that the resolution is 1920x1080
   ffprobe.get_video_info("temp1.mp4")

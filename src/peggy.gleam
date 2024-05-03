@@ -200,7 +200,6 @@ pub fn audio_codec(cmd: Command, codec: String) -> Command {
 ///
 /// CMD: <final positional argument>
 pub fn output(cmd: Command, output: String) -> Command {
-  // TODO: Write tests for this
   add_file(cmd, output)
 }
 

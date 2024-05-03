@@ -33,3 +33,16 @@ pub fn bad_test() {
   }
   |> should.equal(True)
 }
+
+pub fn duration_test() {
+  let _ =
+    peggy.new_command()
+    |> peggy.fmt("lavfi")
+    |> peggy.input("color=c=black:s=1920x1080:d=5")
+    |> peggy.video_codec("libx264")
+    |> peggy.duration("5")
+    |> peggy.output("temp1.mp4")
+    |> peggy.exec_sync
+  ffprobe.get_duration("temp1.mp4")
+  |> should.equal(Ok(5.0))
+}

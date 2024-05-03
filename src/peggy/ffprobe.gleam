@@ -1,4 +1,5 @@
 import gleam/dict
+import gleam/float
 import gleam/list
 import gleam/result
 import gleam/string
@@ -74,5 +75,36 @@ fn fold_kv(acc, s) {
   case string.split(s, on: "=") {
     [a, b] -> dict.insert(acc, a, b)
     _ -> acc
+  }
+}
+
+// ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 input.mp4
+// ffprobe -i <file> -show_entries format=duration -v quiet -of csv="p=0"
+// ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 input_video.mp4
+
+pub fn get_duration(file_path: String) -> Result(Float, String) {
+  let assert Ok(ffprobe) = shellout.which("ffprobe")
+  case
+    shellout.command(
+      run: ffprobe,
+      with: [
+        "-show_entries",
+        "format=duration",
+        "-v",
+        "error",
+        "-of",
+        "default=noprint_wrappers=1:nokey=1",
+        file_path,
+      ],
+      in: ".",
+      opt: [],
+    )
+  {
+    Ok(s) ->
+      case float.parse(string.trim(s)) {
+        Ok(f) -> Ok(f)
+        Error(_) -> Error("Failed to parse: " <> s)
+      }
+    Error(#(_, es)) -> Error(es)
   }
 }
