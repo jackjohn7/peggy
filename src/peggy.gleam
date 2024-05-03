@@ -230,7 +230,7 @@ pub fn until(cmd: Command, stamp: String) -> Command {
 /// CMD: -fs <bytes>
 pub fn limit_size(cmd: Command, size: Int) -> Command {
   // TODO: Write tests for this
-  add_arg(cmd, "-to", int.to_string(size))
+  add_arg(cmd, "-fs", int.to_string(size))
 }
 
 /// Seek position in input or output
@@ -240,7 +240,7 @@ pub fn limit_size(cmd: Command, size: Int) -> Command {
 /// CMD: -ss <position>
 pub fn seek(cmd: Command, pos: Int) -> Command {
   // NOTE: Not sure how to test this
-  add_arg(cmd, "-to", int.to_string(pos))
+  add_arg(cmd, "-ss", int.to_string(pos))
 }
 
 /// Seek position in input or output relative to EOF
@@ -251,7 +251,7 @@ pub fn seek(cmd: Command, pos: Int) -> Command {
 /// CMD: -sseof <position>
 pub fn seek_eof(cmd: Command, pos: Int) -> Command {
   // NOTE: Not sure how to test this
-  add_arg(cmd, "-to", int.to_string(pos))
+  add_arg(cmd, "-sseof", int.to_string(pos))
 }
 
 /// Apply filter to video
