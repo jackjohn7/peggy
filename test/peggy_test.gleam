@@ -3,6 +3,7 @@ import gleam/string
 import gleeunit
 import gleeunit/should
 import peggy
+import peggy/ffprobe
 import shellout
 import simplifile
 
@@ -94,22 +95,52 @@ pub fn add_arg_test() {
   peggy.new_command()
   |> peggy.input("temp1.mp4")
   |> peggy.video_filter("scale=854:480")
-  |> should.equal(
-    peggy.Command(files: [], options: [
+  |> should.equal(peggy.Command(
+    files: [],
+    options: [
       peggy.CmdOption(name: "-vf", value: "scale=854:480"),
       peggy.CmdOption(name: "-i", value: "temp1.mp4"),
-    ]),
-  )
+    ],
+    config: peggy.default_cfg,
+  ))
 }
 
 pub fn output_test() {
   peggy.new_command()
   |> peggy.output("temp1.mp4")
   |> peggy.output("temp2.mp4")
+  |> should.equal(peggy.Command(
+    options: [],
+    files: [peggy.File("temp2.mp4"), peggy.File("temp1.mp4")],
+    config: peggy.default_cfg,
+  ))
+}
+
+pub fn overwrite_test() {
+  let video1 =
+    peggy.new_command()
+    |> peggy.fmt("lavfi")
+    |> peggy.input("color=c=black:s=1920x1080:d=5")
+    |> peggy.video_codec("libx264")
+    |> peggy.duration("5")
+    |> peggy.output("temp1.mp4")
+    |> peggy.exec_sync
+
+  video1
+  |> should.equal(Ok(""))
+
+  // check that the resolution is 1920x1080
+  ffprobe.get_video_info("temp1.mp4")
+  |> io.debug
   |> should.equal(
-    peggy.Command(options: [], files: [
-      peggy.File("temp2.mp4"),
-      peggy.File("temp1.mp4"),
-    ]),
+    Ok(ffprobe.StreamProperties("1920", "1080", "1:1", "16:9", "25/1")),
   )
+  // now create a video set to overwrite the first one
+  let _ =
+    peggy.new_command()
+    |> peggy.input("temp1.mp4")
+    |> peggy.video_filter("scale=854:480")
+    |> peggy.video_codec("libx264")
+    |> peggy.output("temp2.mp4")
+    |> peggy.exec_sync
 }

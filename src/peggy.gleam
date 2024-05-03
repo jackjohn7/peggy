@@ -21,35 +21,42 @@ pub type CmdOption {
   Flag(flag: String)
 }
 
+pub type Cfg {
+  Cfg(overwrite_out: Bool)
+}
+
+pub const default_cfg: Cfg = Cfg(overwrite_out: False)
+
 /// Command provided to FFmpeg
 pub type Command {
-  Command(files: List(File), options: List(CmdOption))
+  Command(files: List(File), options: List(CmdOption), config: Cfg)
 }
 
 /// Creates new command for executing an FFmpeg command
 pub fn new_command() -> Command {
-  Command(files: [], options: [])
+  Command(files: [], options: [], config: default_cfg)
 }
 
 /// Adds file to command
 pub fn add_file(cmd: Command, file_name: String) -> Command {
   case cmd {
-    Command(files, options) -> Command([File(file_name), ..files], options)
+    Command(files, options, cfg) ->
+      Command([File(file_name), ..files], options, cfg)
   }
 }
 
 /// Adds argument to command
 pub fn add_arg(cmd: Command, name: String, value: String) -> Command {
   case cmd {
-    Command(files, options) ->
-      Command(files, [CmdOption(name, value), ..options])
+    Command(files, options, cfg) ->
+      Command(files, [CmdOption(name, value), ..options], cfg)
   }
 }
 
 // Adds flag to command
 pub fn add_flag(cmd: Command, flag: String) -> Command {
   case cmd {
-    Command(files, options) -> Command(files, [Flag(flag), ..options])
+    Command(files, options, cfg) -> Command(files, [Flag(flag), ..options], cfg)
   }
 }
 
@@ -67,7 +74,15 @@ pub fn exec_sync(cmd: Command) -> Result(String, String) {
       }
     })
     |> list.flatten
-    |> list.append(["-loglevel", "error", "-hide_banner"])
+    |> list.append([
+      "-loglevel",
+      "error",
+      "-hide_banner",
+      case cmd.config.overwrite_out {
+        True -> "-y"
+        False -> "-n"
+      },
+    ])
 
   let files =
     cmd.files
@@ -114,7 +129,11 @@ pub fn fmt(cmd: Command, format: String) -> Command {
 /// CMD: -y
 pub fn overwrite(cmd: Command) -> Command {
   // TODO: Write tests for this
-  add_flag(cmd, "-y")
+  case cmd {
+    Command(files, options, cfg) -> {
+      Command(files, options, Cfg(..cfg, overwrite_out: True))
+    }
+  }
 }
 
 /// Do not overwrite the output file if exists.
@@ -123,7 +142,10 @@ pub fn overwrite(cmd: Command) -> Command {
 /// CMD: -n
 pub fn no_overwrite(cmd: Command) -> Command {
   // TODO: Write tests for this
-  add_flag(cmd, "-n")
+  case cmd {
+    Command(files, options, cfg) ->
+      Command(files, options, Cfg(..cfg, overwrite_out: False))
+  }
 }
 
 /// Specify format of output
