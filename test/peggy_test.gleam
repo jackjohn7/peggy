@@ -131,16 +131,22 @@ pub fn overwrite_test() {
 
   // check that the resolution is 1920x1080
   ffprobe.get_video_info("temp1.mp4")
-  |> io.debug
   |> should.equal(
     Ok(ffprobe.StreamProperties("1920", "1080", "1:1", "16:9", "25/1")),
   )
   // now create a video set to overwrite the first one
   let _ =
     peggy.new_command()
-    |> peggy.input("temp1.mp4")
-    |> peggy.video_filter("scale=854:480")
+    |> peggy.fmt("lavfi")
+    |> peggy.input("color=c=black:s=840x480:d=5")
     |> peggy.video_codec("libx264")
-    |> peggy.output("temp2.mp4")
+    |> peggy.duration("5")
+    |> peggy.overwrite
+    |> peggy.output("temp1.mp4")
     |> peggy.exec_sync
+  ffprobe.get_video_info("temp1.mp4")
+  |> should.equal(
+    Ok(ffprobe.StreamProperties("840", "480", "1:1", "7:4", "25/1")),
+  )
+  let assert Ok(Nil) = simplifile.delete("temp1.mp4")
 }
