@@ -16,7 +16,6 @@ repository = { type = "github", user = "jackjohn7", repo = "peggy" }
 gleam_stdlib = ">= 0.37.0 and < 1.0.0"
 gleam_erlang = ">= 0.25.0 and < 1.0.0"
 shellout = ">= 1.6.0 and < 2.0.0"
-gleam_json = ">= 1.0.1 and < 2.0.0"
 
 [dev-dependencies]
 gleeunit = ">= 1.0.0 and < 2.0.0"
